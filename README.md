@@ -53,24 +53,13 @@ ansible-playbook prod/up.yaml
 ```bash
 ansible-playbook ngrok/up.yaml
 ```
-### Step 3: Open a new Terminal 
-
-```bash
-kubectl port-forward svc/gitea-http 3000:3000
-```
-
-### Step 4: Open a new Terminal again
-
-```bash
-curl -s http://127.0.0.1:4040/api/tunnels | grep -Eo 'https://[a-zA-Z0-9.-]+\.ngrok-free\.app'
-```
 
 ## Public Access
 
-Your ngrok URL will look like:  
+The ngrok URL will look like:  
 `https://your-random-subdomain.ngrok-free.app`
 
-Paste this into `COMMENTS.txt` for full marks.
+Pasted this into `COMMENTS.txt'.
 
 ## Helm Charts Used
 - [Gitea](https://dl.gitea.io/charts/)

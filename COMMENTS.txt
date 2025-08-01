@@ -1,0 +1,7 @@
+Assignment: Open Source CI/CD Pipeline
+
+Student: Twinkle Mishra  
+GitHub Repo: https://github.com/TwinkleM97/A3-Container-orchestration-Gitea  
+ngrok URL (for external access): https://e6db36052acc.ngrok-free.app/
+
+Note: As per instructions, the ngrok URL is only included here and as a comment inside ngrok/up.yaml. It is not used inside prod/up.yaml.
