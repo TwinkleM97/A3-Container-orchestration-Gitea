@@ -4,6 +4,10 @@
   hosts: localhost
   connection: local
   tasks:
+    - name: Authenticate ngrok with access token
+      shell: ngrok config add-authtoken 30D2EM1UumnzuusGfpF6ft4Peje_4TLy8fdypJCgRN934xMst
+      ignore_errors: true  # skip error if already authed
+
     - name: Start port-forwarding Gitea service on port 3000
       shell: nohup kubectl port-forward svc/gitea-http 3000:3000 > pf.log 2>&1 &
       async: 30
@@ -19,6 +23,10 @@
       shell: nohup ngrok http 3000 > ngrok.log 2>&1 &
       async: 30
       poll: 0
+
+    - name: Wait for ngrok to initialize
+      pause:
+        seconds: 5
 
     - name: Wait for ngrok tunnel to be available
       uri:
