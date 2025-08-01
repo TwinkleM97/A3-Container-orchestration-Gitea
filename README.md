@@ -19,6 +19,7 @@ A3-Container-orchestration-Gitea/
 │
 ├── screenshots/                # (Optional) Folder containing screenshots for demonstration
 │   ├── gitea-dashboard.png
+│   └── pipeline-status.png
 │
 ├── .gitignore                  # Ignore unnecessary files for Git
 ├── README.md                   # Main project documentation
@@ -94,6 +95,9 @@ Below are screenshots showing the final working deployment and pipeline status.
 
 ### Gitea Dashboard via ngrok
 ![Gitea Dashboard](./screenshots/gitea-dashboard.png)
+
+### CI/CD Pipeline Status (Optional)
+![Pipeline Status](./screenshots/pipeline-status.png)
 
 
 # Gitea Deployment Issues & Solutions
