@@ -19,7 +19,6 @@ A3-Container-orchestration-Gitea/
 │
 ├── screenshots/                # (Optional) Folder containing screenshots for demonstration
 │   ├── gitea-dashboard.png
-│   └── pipeline-status.png
 │
 ├── .gitignore                  # Ignore unnecessary files for Git
 ├── README.md                   # Main project documentation
