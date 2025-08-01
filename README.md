@@ -7,7 +7,7 @@
 - Modular YAML structure (prod vs ngrok)
 
 ## Project Structure
-
+```
 A3-Container-orchestration-Gitea/
 │
 ├── prod/
@@ -25,7 +25,7 @@ A3-Container-orchestration-Gitea/
 ├── README.md                   # Main project documentation
 ├── COMMENTS.txt                # Contains ngrok link as per assignment requirements
 └── structure.md                # (Optional) This file describing folder structure
-
+```
 
 ## Setup
 
