@@ -6,6 +6,27 @@
 - Exposed publicly via ngrok
 - Modular YAML structure (prod vs ngrok)
 
+## Project Structure
+
+A3-Container-orchestration-Gitea/
+│
+├── prod/
+│   ├── up.yaml                 # Ansible playbook to deploy MySQL and Gitea using Helm
+│   └── values-gitea.yaml       # Helm override values for Gitea (external DB, persistence, etc.)
+│
+├── ngrok/
+│   └── up.yaml                 # Ansible playbook to expose Gitea using ngrok tunnel
+│
+├── screenshots/                # (Optional) Folder containing screenshots for demonstration
+│   ├── gitea-dashboard.png
+│   └── pipeline-status.png
+│
+├── .gitignore                  # Ignore unnecessary files for Git
+├── README.md                   # Main project documentation
+├── COMMENTS.txt                # Contains ngrok link as per assignment requirements
+└── structure.md                # (Optional) This file describing folder structure
+
+
 ## Setup
 
 ### Install Ansible
