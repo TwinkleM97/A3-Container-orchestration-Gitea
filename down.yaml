@@ -1,0 +1,49 @@
+# prod/down.yaml
+---
+- name: Tear down Gitea and MySQL deployment
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Uninstall Gitea Helm release
+      shell: helm uninstall gitea || echo "Gitea release not found or already uninstalled"
+
+    - name: Uninstall MySQL Helm release
+      shell: helm uninstall gitea-mysql || echo "MySQL release not found or already uninstalled"
+
+    - name: Kill any running ngrok tunnels (optional)
+      shell: |
+        pkill -f "ngrok http" || echo "No ngrok tunnel found"
+      ignore_errors: true
+
+    - name: Wait for pods to terminate
+      shell: |
+        echo "Waiting for pods to terminate..."
+        timeout 120s bash -c 'while kubectl get pods | grep -E "(gitea|mysql)" | grep -v Terminating > /dev/null; do sleep 2; done' || echo "Timeout waiting for pods"
+
+    - name: Delete all pods forcefully
+      shell: kubectl delete pods --all --grace-period=0 --force || echo "No pods to delete"
+
+    - name: Delete PVCs
+      shell: kubectl delete pvc --all || echo "No PVCs to delete"
+
+    - name: Delete all services
+      shell: kubectl delete svc --all || echo "No services to delete"
+
+    - name: Delete secrets
+      shell: kubectl delete secret --all || echo "No secrets to delete"
+
+    - name: Delete configmaps
+      shell: kubectl delete configmap --all || echo "No configmaps to delete"
+
+    - name: Delete Kind cluster named 'devops-gitea' (optional)
+      shell: |
+        kind delete cluster --name devops-gitea || echo "Kind cluster 'devops-gitea' not found or already deleted"
+      ignore_errors: true
+
+    - name: Cleanup summary
+      shell: |
+        echo "=== Cleanup Summary ==="
+        echo "Remaining pods:"; kubectl get pods || true
+        echo "Remaining services:"; kubectl get svc || true
+        echo "Remaining PVCs:"; kubectl get pvc || true
+        echo "Helm releases:"; helm list || true

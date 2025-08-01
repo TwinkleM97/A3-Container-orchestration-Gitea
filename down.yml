@@ -1,3 +1,0 @@
----
-- import_playbook: gitea/down.yml
-- import_playbook: k8s/down.yml

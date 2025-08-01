@@ -1,0 +1,66 @@
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+# Disable all built-in databases
+postgresql:
+  enabled: false
+postgresql-ha:
+  enabled: false
+mysql:
+  enabled: false
+redis-cluster:
+  enabled: false
+memcached:
+  enabled: false
+valkey-cluster:
+  enabled: false
+valkey:
+  enabled: false
+
+# This is the critical part - the database config must be in gitea.config
+gitea:
+  admin:
+    username: gitea_admin
+    password: admin123
+    email: admin@example.com
+  config:
+    # THIS IS THE KEY - Database configuration in gitea.config
+    database:
+      DB_TYPE: mysql
+      HOST: "gitea-mysql.default.svc.cluster.local:3306"
+      NAME: giteadb
+      USER: gitea
+      PASSWD: giteapass
+      CHARSET: utf8mb4
+      SSL_MODE: disable
+    server:
+      DOMAIN: localhost
+      HTTP_PORT: 3000
+      ROOT_URL: "http://localhost:3000/"
+      APP_DATA_PATH: /data
+      SSH_DOMAIN: localhost
+      SSH_PORT: 22
+      SSH_LISTEN_PORT: 2222
+      START_SSH_SERVER: true
+      PROTOCOL: http
+    security:
+      INSTALL_LOCK: true
+    cache:
+      ENABLED: false
+      ADAPTER: memory
+    session:
+      PROVIDER: memory
+      PROVIDER_CONFIG: ""
+    queue:
+      TYPE: level
+    metrics:
+      ENABLED: false
+    indexer:
+      ISSUE_INDEXER_TYPE: db
+    repository:
+      ROOT: /data/git/repositories
+
+# Remove the externalDatabase section - it's not working
+# The database config should be only in gitea.config.database

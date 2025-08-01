@@ -1,33 +1,117 @@
-# cdevops-gitea
-k8s gitea lab to take dev (sqlite based) to prod (mysql based)
+# Gitea CI/CD Pipeline with Helm, MySQL, and ngrok
 
-TLDR;
+## Features
+- Helm deployment of Gitea with persistence
+- Uses external MySQL database (Bitnami Helm)
+- Exposed publicly via ngrok
+- Modular YAML structure (prod vs ngrok)
+
+## Setup
+
+### Install Ansible
 
 ```bash
-pip install ansible kubernetes
-git submodule update --init --recursive
-ansible-playbook up.yml
+sudo apt update
+sudo apt install ansible -y
 ```
 
-Wait until `kubectl get pod` shows all pods running and:
+### Using kind (Kubernetes IN Docker) — Recommended for Codespaces or VMs
+
+```bash
+# 1. Install kind if not already installed
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+# 2. Create a Kubernetes cluster
+kind create cluster --name devops-gitea
+
+# 3. Verify connection
+kubectl get nodes
+
+```
+
+### Install ngrok in your environment
+
+```bash
+# 1. Download ngrok
+curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+sudo apt update
+
+# 2. Install ngrok
+sudo apt install ngrok -y
+```
+
+
+### Step 1: Deploy MySQL and Gitea
+```bash
+ansible-playbook prod/up.yaml
+```
+
+### Step 2: Expose Gitea using ngrok
+```bash
+ansible-playbook ngrok/up.yaml
+```
+### Step 3: Open a new Terminal 
 
 ```bash
 kubectl port-forward svc/gitea-http 3000:3000
 ```
 
-Now you should be able to access gitea in development mode.
+### Step 4: Open a new Terminal again
 
-The challenge is to run this in production mode.
+```bash
+curl -s http://127.0.0.1:4040/api/tunnels | grep -Eo 'https://[a-zA-Z0-9.-]+\.ngrok-free\.app'
+```
 
-### Points to Cover
+## Public Access
 
-## Marking
+Your ngrok URL will look like:  
+`https://your-random-subdomain.ngrok-free.app`
 
-|Item|Out Of|
-|--|--:|
-|use [the gitea helm](https://gitea.com/gitea/helm-gitea) to make the repository data persistent|3|
-|make gitea use external database|3|
-|Use [this article](https://blog.techiescamp.com/using-ngrok-with-kubernetes/) to expose your gitea instance publically|2|
-|make the README easy to use and ACCURATE|2|
-|||
-|total|10|
+Paste this into `COMMENTS.txt` for full marks.
+
+## Helm Charts Used
+- [Gitea](https://dl.gitea.io/charts/)
+- [Bitnami MySQL](https://bitnami.com/stack/mysql/helm)
+
+## Persistent Storage
+Gitea uses a 5Gi PVC via Helm values.
+
+# Gitea Deployment Issues & Solutions
+
+## What Went Wrong
+
+I ran into two major problems while trying to deploy Gitea with an external MySQL database using Helm:
+
+### Problem 1: Unwanted Redis Cluster
+Even though I tried to disable Redis/Valkey in my configuration, the Gitea chart kept deploying a 3-node Valkey cluster that I didn't want or need.
+
+**The Issue:** Turns out the Gitea Helm chart has `valkey-cluster` enabled by default, and just disabling the general Redis settings wasn't enough.
+
+**The Fix:** I had to specifically disable `valkey-cluster` in my values.yaml file. This wasn't obvious from the documentation!
+
+### Problem 2: Database Connection Failed
+My Gitea pods kept crashing during initialization with an error saying "Database settings are missing from the configuration file."
+
+**The Issue:** I was using the `externalDatabase` section in my values.yaml, but the Gitea init containers weren't actually reading this configuration. The database settings never made it into the app.ini file that Gitea needs.
+
+**The Fix:** I had to put the database configuration in a completely different section called `gitea.config.database`. Only then did the init containers properly process the database settings.
+
+## What I Learned
+
+1. **Default settings can surprise you** - Always check what's enabled by default in Helm charts
+2. **Configuration structure matters** - Where you put settings in values.yaml really matters
+3. **Init container logs are your friend** - They show exactly which config sections are being processed
+4. **External database setup isn't straightforward** - The `externalDatabase` section alone doesn't work
+
+## Final Result
+
+After fixing both issues:
+- No more unwanted Valkey pods
+- Database configuration actually worked
+- Both Gitea and MySQL pods ran successfully
+- The whole deployment finally worked as expected
+
+This was definitely a learning experience about reading Helm chart documentation more carefully and understanding how configuration gets processed!

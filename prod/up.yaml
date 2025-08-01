@@ -1,0 +1,42 @@
+# prod/up.yaml
+---
+- name: Deploy Gitea and MySQL
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Add Helm Repositories
+      shell: |
+        helm repo add gitea-charts https://dl.gitea.io/charts/
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo update
+        
+    - name: Uninstall previous releases if they exist
+      shell: |
+        helm uninstall gitea || true
+        helm uninstall gitea-mysql || true
+        
+    - name: Clean up any remaining PVCs (optional but helps with clean deployments)
+      shell: kubectl delete pvc --all || true
+        
+    - name: Install MySQL (external DB for Gitea)
+      shell: |
+        helm install gitea-mysql bitnami/mysql \
+          --set auth.rootPassword=rootpass \
+          --set auth.database=giteadb \
+          --set auth.username=gitea \
+          --set auth.password=giteapass
+
+    - name: Wait for MySQL to be ready
+      shell: kubectl wait --for=condition=ready pod gitea-mysql-0 --timeout=600s
+
+    - name: Verify MySQL is accepting connections
+      shell: |
+        kubectl run mysql-test --image=mysql:8.0 --rm -i --restart=Never -- \
+          mysql -h gitea-mysql.default.svc.cluster.local -u gitea -pgiteapass -e "SELECT 1;" || echo "MySQL connection test completed"
+
+    - name: Install Gitea with Helm and External MySQL
+      shell: |
+        helm install gitea gitea-charts/gitea -f ../values.yaml
+
+    - name: Wait for Gitea deployment to be ready
+      shell: kubectl wait --for=condition=available deployment gitea --timeout=600s
