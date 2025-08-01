@@ -88,6 +88,14 @@ Pasted this into `COMMENTS.txt'.
 ## Persistent Storage
 Gitea uses a 5Gi PVC via Helm values.
 
+## Demonstration
+
+Below are screenshots showing the final working deployment and pipeline status.
+
+### ✅ Gitea Dashboard via ngrok
+![Gitea Dashboard](./screenshots/gitea-dashboard.png)
+
+
 # Gitea Deployment Issues & Solutions
 
 ## What Went Wrong
