@@ -92,7 +92,7 @@ Gitea uses a 5Gi PVC via Helm values.
 
 Below are screenshots showing the final working deployment and pipeline status.
 
-### ✅ Gitea Dashboard via ngrok
+### Gitea Dashboard via ngrok
 ![Gitea Dashboard](./screenshots/gitea-dashboard.png)
 
 
